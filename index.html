@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FF Sensitivity Hub</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 30px 15px;
+      background: #0b0b0b;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ff3030;
+      font-size: 36px;
+    }
+
+    p {
+      color: #cccccc;
+    }
+
+    .container {
+      max-width: 450px;
+      margin: 35px auto;
+      padding: 25px;
+      background: #191919;
+      border: 1px solid #383838;
+      border-radius: 15px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 18px 0 8px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 13px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    input, select {
+      background: #292929;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    button {
+      margin-top: 22px;
+      background: #ff3030;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #result {
+      display: none;
+      margin-top: 25px;
+      text-align: left;
+      line-height: 2;
+    }
+
+    .value {
+      color: #ff5555;
+      font-weight: bold;
+    }
+
+    footer {
+      color: #888;
+      font-size: 12px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>FF SENSI HUB</h1>
+  <p>Find your recommended Free Fire sensitivity!</p>
+
+  <div class="container">
+    <h2>Generate Your Sensi</h2>
+
+    <label for="phone">Phone brand</label>
+    <select id="phone">
+      <option>Vivo</option>
+      <option>Samsung</option>
+      <option>Tecno</option>
+      <option>Infinix</option>
+      <option>Redmi</option>
+      <option>OPPO</option>
+      <option>Other</option>
+    </select>
+
+    <label for="model">Phone model</label>
+    <input id="model" placeholder="e.g. Vivo Y20">
+
+    <label for="style">Play style</label>
+    <select id="style">
+      <option value="headshot">Headshot / One-tap</option>
+      <option value="rush">Rusher</option>
+      <option value="balanced">Balanced</option>
+      <option value="sniper">Sniper</option>
+    </select>
+
+    <button onclick="generate()">GENERATE SENSITIVITY</button>
+
+    <div id="result">
+      <h3>Your Recommended Settings</h3>
+      <div id="values"></div>
+      <button onclick="copySettings()">COPY SETTINGS</button>
+      <p id="message"></p>
+    </div>
+  </div>
+
+  <footer>Fan-made Free Fire sensitivity tool.</footer>
+
+  <script>
+    function generate() {
+      const style = document.getElementById("style").value;
+
+      const profiles = {
+        headshot: [190, 175, 155, 140, 90, 130],
+        rush: [185, 170, 150, 130, 75, 125],
+        balanced: [175, 155, 140, 125, 80, 120],
+        sniper: [155, 125, 145, 155, 100, 100]
+      };
+
+      const names = [
+        "General",
+        "Red Dot",
+        "2x Scope",
+        "4x Scope",
+        "Sniper Scope",
+        "Free Look"
+      ];
+
+      const settings = profiles[style];
+
+      document.getElementById("values").innerHTML =
+        names.map((name, i) =>
+          `<div>${name}: <span class="value">${settings[i]}</span></div>`
+        ).join("");
+
+      document.getElementById("result").style.display = "block";
+      document.getElementById("message").textContent = "";
+    }
+
+    async function copySettings() {
+      const text = document.getElementById("values").innerText;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        document.getElementById("message").textContent = "Copied!";
+      } catch {
+        document.getElementById("message").textContent =
+          "Select the settings and copy them manually.";
+      }
+    }
+  </script>
+</body>
+</html>
