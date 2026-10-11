@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF SENSI HUB</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 25px 15px;
+  background: #090b10;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+header, footer { text-align: center; }
+
+header h1 { color: #ff263d; font-size: 32px; }
+
+header p, .muted { color: #aeb6c5; }
+
+.container {
+  max-width: 850px;
+  margin: 25px auto;
+  padding: 24px;
+  background: #121720;
+  border: 1px solid #343e4d;
+  border-radius: 15px;
+}
+
+h2 { font-size: 21px; }
+
+label {
+  display: block;
+  margin: 18px 0 8px;
+  color: #dce3ef;
+}
+
+input, select {
+  width: 100%;
+  padding: 13px;
+  background: #1c2430;
+  border: 1px solid #465366;
+  color: white;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+input:focus, select:focus {
+  outline: 2px solid #ff263d;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 8px;
+  padding: 13px;
+  font-weight: bold;
+}
+
+.primary {
+  width: 100%;
+  margin-top: 22px;
+  background: #ff263d;
+  color: white;
+}
+
+.suggestions {
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 5px;
+  background: #1c2430;
+  border: 1px solid #465366;
+  border-radius: 8px;
+}
+
+.suggestion {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #303a48;
+}
+
+.suggestion:hover, .suggestion:focus {
+  background: #343e4d;
+  outline: none;
+}
+
+#results { display: none; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.setting {
+  padding: 16px;
+  background: #1c2430;
+  border: 1px solid #354153;
+  border-radius: 10px;
+}
+
+.setting span {
+  color: #aeb6c5;
+  font-size: 14px;
+}
+
+.setting strong {
+  display: block;
+  color: #ff344a;
+  font-size: 29px;
+  margin-top: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.actions button { flex: 1; }
+.copy { background: #ff263d; color: white; }
+.reset { background: #303a48; color: white; }
+
+footer {
+  margin-top: 35px;
+  color: #8993a4;
+  font-size: 13px;
+}
+
+@media (min-width: 650px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>🔥 FF SENSI HUB</h1>
+  <p>Find recommended Free Fire sensitivity for your phone.</p>
+</header>
+
+<main>
+<section class="container">
+  <h2>📱 Find Your Phone</h2>
+  <p class="muted">Type just a few letters. Choose a suggestion or enter any brand.</p>
+
+  <label for="phone">Phone brand</label>
+  <input id="phone" type="text"
+    placeholder="Type e.g. sam, viv, app, tec..."
+    autocomplete="off"
+    aria-autocomplete="list"
+    aria-controls="suggestions">
+
+  <div id="suggestions" class="suggestions" role="listbox"></div>
+  <p id="matchInfo" class="muted" aria-live="polite"></p>
+
+  <label for="model">Phone model (optional)</label>
+  <input id="model" type="text"
+    placeholder="e.g. Vivo Y20, Galaxy A15, iPhone 15">
+
+  <label for="style">Play style</label>
+  <select id="style">
+    <option value="headshot">One-tap / drag headshots</option>
+    <option value="rush">Rusher / close-range</option>
+    <option value="balanced">Balanced gameplay</option>
+    <option value="sniper">Sniper / long-range</option>
+  </select>
+
+  <label for="scale">Sensitivity scale</label>
+  <select id="scale">
+    <option value="200">0–200</option>
+    <option value="100">0–100</option>
+  </select>
+
+  <button class="primary" onclick="generate()">GET MY SENSITIVITY →</button>
+</section>
+
+<section class="container" id="results" aria-live="polite">
+  <h2>Your Recommended Sensitivity</h2>
+  <p id="deviceInfo" class="muted"></p>
+  <div class="grid" id="values"></div>
+
+  <p class="muted">
+    These are starting recommendations, not guaranteed headshots.
+    Test them in Training Ground and adjust to your device.
+  </p>
+
+  <div class="actions">
+    <button class="copy" onclick="copySettings()">COPY SETTINGS</button>
+    <button class="reset" onclick="generate()">REGENERATE</button>
+  </div>
+  <p id="message" aria-live="polite"></p>
+</section>
+</main>
+
+<footer>FF SENSI HUB · Fan-made tool · Not affiliated with Garena</footer>
+
+<script>
+// Add more brands and phone families here whenever you want.
+const brands = [
+  "Acer", "Alcatel", "Allview", "Amazon", "Apple", "Asus",
+  "BlackBerry", "Blackview", "Blu", "BQ", "CAT", "Coolpad",
+  "Cubot", "Doogee", "Energizer", "Fairphone", "Google",
+  "Honor", "HTC", "Huawei", "Infinix", "iQOO", "Itel",
+  "Kyocera", "Lava", "LeEco", "Lenovo", "LG", "Meizu",
+  "Micromax", "Microsoft", "Motorola", "Nokia", "Nothing",
+  "OnePlus", "Oppo", "Oukitel", "Panasonic", "Poco",
+  "Realme", "Redmi", "RugGear", "Samsung", "Samsung Galaxy",
+  "Samsung Z", "Sharp", "Sony", "TCL", "Tecno", "Ulefone",
+  "Umidigi", "Vivo", "Wiko", "Xiaomi", "ZTE"
+];
+
+const phoneInput = document.getElementById("phone");
+const suggestionBox = document.getElementById("suggestions");
+const matchInfo = document.getElementById("matchInfo");
+
+function showSuggestions() {
+  const query = phoneInput.value.trim().toLowerCase();
+  suggestionBox.replaceChildren();
+
+  if (!query) {
+    suggestionBox.style.display = "none";
+    matchInfo.textContent = "";
+    return;
+  }
+
+  // Match the query anywhere in the name, not only at the beginning.
+  const matches = brands.filter(brand =>
+    brand.toLowerCase().includes(query)
+  );
+
+  matches.forEach(brand => {
+    const option = document.createElement("div");
+    option.className = "suggestion";
+    option.textContent = brand;
+    option.setAttribute("role", "option");
+    option.tabIndex = 0;
+
+    function choose() {
+      phoneInput.value = brand;
+      suggestionBox.style.display = "none";
+      matchInfo.textContent = "Selected: " + brand;
+    }
+
+    option.addEventListener("click", choose);
+    option.addEventListener("keydown", event => {
+      if (event.key === "Enter") choose();
+    });
+
+    suggestionBox.appendChild(option);
+  });
+
+  suggestionBox.style.display = matches.length ? "block" : "none";
+
+  matchInfo.textContent = matches.length
+    ? matches.length + " matching suggestion(s). Select one or keep typing."
+    : "No match in the list. You can still use the brand you typed.";
+}
+
+phoneInput.addEventListener("input", showSuggestions);
+
+document.addEventListener("click", event => {
+  if (!event.target.closest("#phone") &&
+      !event.target.closest("#suggestions")) {
+    suggestionBox.style.display = "none";
+  }
+});
+
+const profiles = {
+  headshot: [190, 175, 155, 140, 90, 130],
+  rush:     [185, 170, 150, 130, 75, 125],
+  balanced: [175, 155, 140, 125, 80, 120],
+  sniper:   [155, 125, 145, 155, 100, 100]
+};
+
+const names = [
+  "General", "Red Dot", "2x Scope",
+  "4x Scope", "Sniper Scope", "Free Look"
+];
+
+function generate() {
+  const brand = phoneInput.value.trim();
+  const model = document.getElementById("model").value.trim();
+  const style = document.getElementById("style").value;
+  const scale = Number(document.getElementById("scale").value);
+
+  if (!brand) {
+    phoneInput.focus();
+    matchInfo.textContent = "Please type your phone brand first.";
+    return;
+  }
+
+  const settings = profiles[style].map(value =>
+    scale === 100 ? Math.round(value / 2) : value
+  );
+
+  const values = document.getElementById("values");
+  values.replaceChildren();
+
+  names.forEach((name, i) => {
+    const card = document.createElement("div");
+    card.className = "setting";
+
+    const label = document.createElement("span");
+    label.textContent = name;
+
+    const number = document.createElement("strong");
+    number.textContent = settings[i];
+
+    card.append(label, number);
+    values.appendChild(card);
+  });
+
+  document.getElementById("deviceInfo").textContent =
+    brand + (model ? " " + model : "") +
+    " · Scale 0–" + scale +
+    " · " + document.getElementById("style")
+      .selectedOptions[0].textContent;
+
+  document.getElementById("message").textContent = "";
+  document.getElementById("results").style.display = "block";
+  document.getElementById("results").scrollIntoView({
+    behavior: "smooth", block: "start"
+  });
+}
+
+async function copySettings() {
+  const text = document.getElementById("deviceInfo").textContent +
+    "\n" + [...document.querySelectorAll("#values .setting")]
+      .map(card => card.querySelector("span").textContent + ": " +
+        card.querySelector("strong").textContent)
+      .join("\n");
+
+  try {
+    await navigator.clipboard.writeText(text);
+    document.getElementById("message").textContent = "Settings copied!";
+  } catch {
+    document.getElementById("message").textContent =
+      "Copy unavailable. Please copy the settings manually.";
+  }
+}
+</script>
+</body>
+</html>
